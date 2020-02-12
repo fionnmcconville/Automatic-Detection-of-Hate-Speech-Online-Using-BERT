@@ -1,5 +1,3 @@
-Initially, this project's aim is to detect the presence of hate speech with binary classification. Then furthermore, the program must describe further if the target harassed is an individual or a group and whether the message is aggressive or not.
-
 The code is a bit disorganised at the moment, but it will be cleaned up in time. The project is organised as such:
 
 
@@ -9,7 +7,7 @@ The code is a bit disorganised at the moment, but it will be cleaned up in time.
 
 3.  **FurtherPretraining.ipynb** - I then feed the fine-tuning data and the pretraining data into a script provided by the original BERT repo to further pretrain their BERT model from it's final checkpoint using the data I assembled in my pre-training notebook as well as the data I will use to fine-tune the model. This further pre-training is exactly alike to how the original model was trained; by performing masked language modelling and next sentence prediction on each sequence.
 
-4. **HatEval_Tensorflow_TPU.ipynb** - Finally I load the pretrained model - whether it is the original BERT model or my further pretrained model, and fine tune it to detect hate speech. Currently I have not yet developed my further pretrained model successfully, but I expcet to do so very soon. For the moment my model only is being used on the HatEval dataset as I believe it's the most reliable, however I may change this in the future.
+4. **HatEval_Tensorflow_TPU.ipynb** - Finally I load the pretrained model - whether it is a checkpoint from the original BERT model or my further pretrained model, For the moment my model only is being used on the HatEval dataset as I believe it's the most reliable, however I may change this in the future.
 
 Also present is the notebook file Unsupervised_Data_Augmentation which performs backtranslation on the sequences it is fed, however this has not proven to improve performance. I'm keeping it in the repo so I can use it, prove is doesnt improve predictive power and analyse why.
 
