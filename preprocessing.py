@@ -14,7 +14,7 @@ def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 
-install(wordsegment)
+install("wordsegment")
 import wordsegment as ws
 from wordsegment import load, segment
 
