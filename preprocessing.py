@@ -15,9 +15,7 @@ def install(package):
 
 
 install(wordsegment)
-install(demoji-0.1.5-py3-none-any.whl)
 import wordsegment as ws
-import demoji
 from wordsegment import load, segment
 
 def preprocess(text_string):
