@@ -1,11 +1,4 @@
-!pip install wordsegment
 
-#Wheel file below is in path
-!pip install demoji-0.1.5-py3-none-any.whl
-
-import wordsegment as ws
-import demoji
-from wordsegment import load, segment
 import pandas as pd
 import numpy as np
 import html
@@ -13,6 +6,19 @@ import re
 import json
 import string
 import nltk
+import subprocess
+import sys
+
+#pip install within script requires below function
+def install(package):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+
+install(wordsegment)
+install(demoji-0.1.5-py3-none-any.whl)
+import wordsegment as ws
+import demoji
+from wordsegment import load, segment
 
 def preprocess(text_string):
     """
