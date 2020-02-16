@@ -72,7 +72,6 @@ def preprocess(text_string):
 
 
 def emojiReplace1(text_string):
-    demoji.download_codes()
     emoji_dict = demoji.findall(text_string)
     for emoji in emoji_dict.keys():
         text_string = text_string.replace(emoji, ' '+  emoji_dict[emoji])
