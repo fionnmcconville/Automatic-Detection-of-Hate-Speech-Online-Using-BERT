@@ -20,6 +20,11 @@ import wordsegment as ws
 from wordsegment import load, segment
 import demoji
 
+demoji.download_codes()
+nltk.download('wordnet')
+nltk.download('stopwords')
+load()
+
 def preprocess(text_string):
     """
     Accepts a text string and:
@@ -80,8 +85,6 @@ def emojiReplace1(text_string):
 
 
 def hashtagSegment1(text_string):
-    
-    load() # Loading wordsegment
 
     """The values below of the bigrams reflect the amount of search results on google that come up"""
     # For example, we update wordsegment dict so it recognises altright as "alt right" rather than salt right
@@ -111,7 +114,6 @@ def remove_punct(text):
     return text_nopunct
 
 def lemmatizing(text):
-    nltk.download('wordnet')
     wn = nltk.WordNetLemmatizer()
     word_list = re.split('\W+', text)
     text = " ".join([wn.lemmatize(word) for word in word_list])
@@ -119,7 +121,6 @@ def lemmatizing(text):
 
 
 def remove_stopwords(text):
-    nltk.download('stopwords')
     stopwords = nltk.corpus.stopwords.words('english')
     word_list = re.split('\W+', text)
     text = " ".join([word for word in word_list if word not in stopwords])
