@@ -76,11 +76,17 @@ def preprocess(text_string):
     return parsed_text
 
 
-def emojiReplace1(text_string):
-    emoji_dict = demoji.findall(text_string)
+def emojiReplace_v2(text_string):
+    emoji_dict = demoji.findall(text_string)    
     for emoji in emoji_dict.keys():
-        text_string = text_string.replace(emoji, ' '+  emoji_dict[emoji])
-    
+        #Making the connecting token between words a normal letter 'w' because BERT's tokenizer
+        #splits on special tokens like '%' and '$'
+        emoji_token = 'x'.join(re.split('\W+', emoji_dict[emoji])) + ' '
+        text_string = text_string.replace(emoji, emoji_token)
+        
+        #Controlling for multiple emojis in a row
+        pattern = '(' + emoji_token + ')' + '{2,}'
+        text_string = re.sub(pattern, 'mult' + emoji_token + ' ', text_string)
     return text_string
 
 
