@@ -76,6 +76,13 @@ def preprocess(text_string):
     return parsed_text
 
 
+def emojiReplace(text_string):
+    emoji_dict = demoji.findall(text_string)
+    for emoji in emoji_dict.keys():
+        text_string = text_string.replace(emoji, ' '+  emoji_dict[emoji])
+    
+    return text_string
+
 def emojiReplace_v2(text_string):
     emoji_dict = demoji.findall(text_string)    
     for emoji in emoji_dict.keys():
@@ -90,7 +97,7 @@ def emojiReplace_v2(text_string):
     return text_string
 
 
-def hashtagSegment1(text_string):
+def hashtagSegment(text_string):
 
     """The values below of the bigrams reflect the amount of search results on google that come up"""
     # For example, we update wordsegment dict so it recognises altright as "alt right" rather than salt right
