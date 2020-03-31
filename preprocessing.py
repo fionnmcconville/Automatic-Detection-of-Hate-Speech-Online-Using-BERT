@@ -24,23 +24,23 @@ demoji.download_codes()
 nltk.download('wordnet')
 nltk.download('stopwords')
 load()
-
 def preprocess(text_string):
     """
     Accepts a text string and:
     1) Removes URLS
     2) lots of whitespace with one instance
-    3) Removes mentions
+    3) Replaces mentions with common tags
     4) Uses the html.unescape() method to convert unicode to text counterpart
     5) Replace & with and
-    6) Remove the fact the tweet is a retweet if it is - knowing the tweet is 
-       a retweet does not help towards our classification task.
+    6) Remove the fact the tweet is a retweet if it is - (knowing the tweet is 
+       a retweet does not help towards our classification task).
     """
     space_pattern = '\s+'
     giant_url_regex = ('http[s]?://(?:[a-zA-Z]|[0-9]|[#$-_@.&+]|'
         '[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
     mention_regex = '@[\w\-]+:'
     mention_regex1 = '@[\w\-]+'
+    multmention_regex =  '(user ){2,}'
     RT_regex = '(RT|rt)[ ]*@[ ]*[\S]+'
     
     # Replaces urls with URL
@@ -52,9 +52,12 @@ def preprocess(text_string):
     parsed_text = re.sub(RT_regex, ' ', parsed_text) 
     
     # Removes mentions as they're redundant information
-    parsed_text = re.sub(mention_regex, '',  parsed_text)
+    parsed_text = re.sub(mention_regex, 'user',  parsed_text)
     #...including mentions with colons after - this seems to come up often
-    parsed_text = re.sub(mention_regex1, '',  parsed_text)  
+    parsed_text = re.sub(mention_regex1, 'user',  parsed_text)  
+
+    #For multiple users
+    parsed_text = re.sub(multmention_regex, 'multuser ',  parsed_text)
 
     #Replace &amp; with and
     parsed_text = re.sub('&amp;', 'and', parsed_text)
@@ -74,6 +77,7 @@ def preprocess(text_string):
     parsed_text = parsed_text.strip()
     
     return parsed_text
+
 
 
 def emojiReplace(text_string):
@@ -106,7 +110,10 @@ def hashtagSegment(text_string):
     ws.BIGRAMS['white supremacists'] = 3.86e6
     ws.BIGRAMS['tweets'] = 6.26e10
     ws.BIGRAMS['independece day'] = 6.21e7
-        
+    
+    #Put a space before hashtags so each hashtag can be recognised separately 
+    text_string = re.sub("#", " #", text_string)
+    
     #We target hashtags so that we only segment the hashtag strings.
     #Otherwise the segment function may operate on misspelled words also; which
     #often appear in hate speech tweets owing to the ill education of those spewing it
@@ -117,8 +124,10 @@ def hashtagSegment(text_string):
         else:
             temp_str = temp_str + segment(word)
             
-    text_string = ' '.join(temp_str)       
-
+    text_string = ' '.join(temp_str) 
+    
+    #Resolve excess whitespace
+    text_string = re.sub('\s+', ' ', text_string)        
     return text_string
 
 def remove_punct(text):
