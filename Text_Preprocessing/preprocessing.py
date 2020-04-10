@@ -9,18 +9,19 @@ import nltk
 import subprocess
 import sys
 
+
 #pip install within script requires below function
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 
 install("wordsegment")
-install("demoji-0.1.5-py3-none-any.whl")
+install("emoji")
+
 import wordsegment as ws
 from wordsegment import load, segment
-import demoji
+import emoji
 
-demoji.download_codes()
 nltk.download('wordnet')
 nltk.download('stopwords')
 load()
@@ -81,11 +82,9 @@ def preprocess(text_string):
 
 
 def emojiReplace(text_string):
-    emoji_dict = demoji.findall(text_string)
-    for emoji in emoji_dict.keys():
-        text_string = text_string.replace(emoji, ' '+  emoji_dict[emoji])
-    
-    return text_string
+    text_string = emoji.demojize(text_string, delimiters = ("", " "))
+    text_string = re.sub("_", " ", text_string)
+    return re.sub("-", " ", text_string)
 
 def emojiReplace_v2(text_string):
     emoji_dict = demoji.findall(text_string)    
