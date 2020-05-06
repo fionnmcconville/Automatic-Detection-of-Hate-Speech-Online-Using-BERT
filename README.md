@@ -1,14 +1,23 @@
-The code is a bit disorganised at the moment, but it will be cleaned up in time. The project is organised as such:
+# Automatic Detection of Hate Speech Online Using BERT Word Embeddings
+
+## Introduction
+
+Hate Speech is a scourge upon the internet, especially on twitter. This project aims to develop a classifier which can reliably classify hate speech tweets. This hate speech detector has been benchmarked against other systems and has achieved admirable reslts. Placing in the top 10 in the ongoing AnalyticsVidhya Twitter sentiment problem - a hackathon which has thousands of participants - and also placing third on classifying the HatEval dataset among 69 participant systems. First among those using a neural network approach.
+
+This project is organised for convenience in folders, each with their own descriptive README file. The process of building this system can be split into 3 phases
+
+1.  **Text_Preprocessing** - Within this folder is detailed an exploration at the various techniques used to preprocess the noisy tweet data. Demonstrated are the effects of the text pre-processing methods themselves, as well as a method for pulling down a dataframe with up-to-date information on the most popular emojis in use worldwide and a method for giving emojis representation in BERT's vocabulary by altering the BERT vocab.txt file
+
+2.  **Further_Pre_Training** - Detailed inside is the meticulous process where millions of in-domain tweets were extracted via tweepy API, then cleaned via text pre-processing and duplicate removal. These tweets were then used to further pre-train BERT's word embeddings so they could become more adapted to the vocabulary of an informal medium like twitter, which is strewn with slang and colloqiual terminology.
+
+3.  **Fine_Tuning** - Included is a notebook within which various hate speech datasets are inspected and critiqued. These datasets are used widely in academia, but because the focus of this project was to develop a **reliable** hate speech detector. Special care was taken for what datasets were going to use to train the model in the fine-tuning stage. Also within this directory is the final stage of the classifier, wherein transfer learning is utilised upon the BERT word embeddings and is fine-tuned the classify hate speech using a variety of text pre-processing pipelines and model architectures. All code used to build these models is in advanced Tensorflow.
+
+The **Raw_Data** directory contains all of the csv files of the hate speech datasets included in this study for inspection and in some cases used for Fine-Tuning and testing the classifier
+
+The **Report** directory where an interim project description and final report are enclosed. The final report is a detailed analysis and summarisation of the findings in this study
+
+Finally the **Meeting_Minutes** directory is a summarisation of regular meetings between the project supervisor and myself. In it are suggestions from the supervisor on how to improve the classifier and what aspects of BERT I should explore and exploit in order to gain performance.
 
 
-1.  **CSC3002-Hate_Speech_Detection - Assembling and Cleaning the Fine-Tuning Data.ipynb** - I assemble what I believe to be datasets containing hate speech and inspect their content to determine if they can be reliably used to train my model. One can also view the PDF version in gitlab however it will not be as up-to-date as the notebook file present
 
-2.  **RetrievingPretrainingData.ipynb** - I assemble pretraining data from many sources. Unlike the data I use for fine-tuning, this data is unsupervised and is not often represented in text form to begin with. So I resort to using the tweepy package to retrieve the tweets via their tweet ID. Like the fine-tuning data, I analyse and explain the data sources. As has been recommended in papers I've read, I target data which is domain related so I use tweets likely to contain abuse towards different minorities and also tweet datasets which are likely to primarily user-generated, as hate speech online is mostly user-generated
-
-3.  **FurtherPretraining.ipynb** - I then feed the fine-tuning data and the pretraining data into a script provided by the original BERT repo to further pretrain their BERT model from it's final checkpoint using the data I assembled in my pre-training notebook as well as the data I will use to fine-tune the model. This further pre-training is exactly alike to how the original model was trained; by performing masked language modelling and next sentence prediction on each sequence.
-
-4. **HatEval_Tensorflow_TPU.ipynb** - Finally I load the pretrained model - whether it is a checkpoint from the original BERT model or my further pretrained model, For the moment my model only is being used on the HatEval dataset as I believe it's the most reliable, however I may change this in the future.
-
-Also present is the notebook file Unsupervised_Data_Augmentation which performs backtranslation on the sequences it is fed, however this has not proven to improve performance. I'm keeping it in the repo so I can use it, prove is doesnt improve predictive power and analyse why.
-
-This project is still in progress, more functionality will be added very soon.
+The result of this project was a competitive hate speech classifier that performs well on the couple of hate speech sets it was benchmarked on. It has a macro F1 score of 0.547 on the HatEval 2019 set for the english hate speech classification subtask - A, which is placed third among current attempts, first among neural network based models. It is currently in the top 10 of the analyticsvidhya.com dataset as of writing, achieving an F score of 0.8267 on the evaluation of that competition's test set.
