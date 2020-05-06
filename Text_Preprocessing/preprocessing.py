@@ -14,17 +14,65 @@ import sys
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
-
-install("wordsegment")
 install("emoji")
-
+install("wordsegment")
+import emoji
 import wordsegment as ws
 from wordsegment import load, segment
-import emoji
-
-nltk.download('wordnet')
-nltk.download('stopwords')
 load()
+
+SEED = 3060
+
+def loadData(data1, data2 = None, options = None, dataset = None):
+
+  if data2 is not None:
+    frames = [data1,data2]
+    data = pd.concat(frames)
+  else:
+    data = data1
+    
+  HASHTAG_SEGMENTATION = options[0]
+  EMOJI_REPLACEMENT = options[1]
+  LEMMATIZE = options[2]
+  REMOVE_STOPWORDS = options[3]
+  REMOVE_PUNCTUATION = options[4]
+  
+  #Replace emoji must be done before basic preprocess otherwise unicode will be wiped out
+  #And this function will be ineffective
+  if EMOJI_REPLACEMENT == 'Replace_Emoji_v1':
+    data['tweet'] = data['tweet'].apply(emojiReplace)
+
+  if EMOJI_REPLACEMENT == 'Replace_Emoji_v2':
+    data['tweet'] = data['tweet'].apply(emojiReplace_v2)
+
+  #Must be performed after emoji translation
+  data['tweet'] = data['tweet'].apply(preprocess)
+
+  if HASHTAG_SEGMENTATION == True:    
+    data['tweet'] = data['tweet'].apply(hashtagSegment)
+
+  if REMOVE_PUNCTUATION == True:
+    data['tweet'] = data['tweet'].apply(lambda x: remove_punct(x))
+
+  if REMOVE_STOPWORDS == True:
+    nltk.download('stopwords')
+    data['tweet'] = data['tweet'].apply(lambda x: remove_stopwords(x))
+
+  if LEMMATIZE == True:
+    nltk.download('wordnet')
+    data['tweet'] = data['tweet'].apply(lambda x: lemmatizing(x))
+
+  #Remove small sequences that could skew model
+  #data = data[data['tweet'].apply(lambda x: len(x) > 10)]
+  data.dropna(inplace = True)
+  data.reset_index(drop = True, inplace = True) 
+  if dataset == "AnalyticsVidhya"  and len(data.index) < 20000:
+    return data
+  else:
+    #We don't shuffle data when it is the analytics vidhya test set
+    data = data.sample(frac = 1, random_state=SEED) # Shuffle data 
+  return data
+
 def preprocess(text_string):
     """
     Accepts a text string and:
@@ -42,11 +90,13 @@ def preprocess(text_string):
     mention_regex = '@[\w\-]+:'
     mention_regex1 = '@[\w\-]+'
     multmention_regex =  '(user ){2,}'
+    #Sort out odd numbers of users
+    multmention_regex1 = '(multuser user)'
     RT_regex = '(RT|rt)[ ]*@[ ]*[\S]+'
     
     # Replaces urls with URL
-    parsed_text = re.sub(giant_url_regex, '', text_string)
-    parsed_text = re.sub('URL', '', parsed_text)
+    parsed_text = re.sub(giant_url_regex, ' ', text_string)
+    parsed_text = re.sub('URL', ' ', parsed_text)
     
     # Remove the fact the tweet is a retweet. 
     # (we're only interested in the language of the tweet here)
@@ -59,13 +109,15 @@ def preprocess(text_string):
 
     #For multiple users
     parsed_text = re.sub(multmention_regex, 'multuser ',  parsed_text)
+    parsed_text = re.sub(multmention_regex1, 'multuser ',  parsed_text)
 
     #Replace &amp; with and
-    parsed_text = re.sub('&amp;', 'and', parsed_text)
+    parsed_text = re.sub('&amp;', ' and', parsed_text)
+    parsed_text = re.sub('&', ' and', parsed_text)
 
     # Remove unicode
-    parsed_text = re.sub(r'[^\x00-\x7F]','', parsed_text) 
-    parsed_text = re.sub(r'&#[0-9]+;', '', parsed_text)  
+    parsed_text = re.sub(r'[^\x00-\x7F]',' ', parsed_text) 
+    parsed_text = re.sub(r'&#[0-9]+;', ' ', parsed_text)  
 
     # Convert unicode missed by above regex to text
     parsed_text = html.unescape(parsed_text)
@@ -79,24 +131,27 @@ def preprocess(text_string):
     
     return parsed_text
 
-
-
 def emojiReplace(text_string):
-    text_string = emoji.demojize(text_string, delimiters = ("", " "))
-    text_string = re.sub("_", " ", text_string)
-    return re.sub("-", " ", text_string)
+    for word in text_string:
+        if word in emoji.UNICODE_EMOJI:
+            emoji_token = re.sub("[_-]", " ", emoji.demojize(word, delimiters = (" ", " "),  use_aliases = True))
+            emoji_token = ' '.join(re.split('\W+', emoji_token)) + ' '
+            text_string = text_string.replace(word, emoji_token)
+            
+            pattern = '(' + emoji_token + ')' + '{2,}'
+            text_string = re.sub(pattern, 'multiple' + emoji_token + ' ', text_string)
+    return re.sub("[-_]", " ", text_string)
+
 
 def emojiReplace_v2(text_string):
-    emoji_dict = demoji.findall(text_string)    
-    for emoji in emoji_dict.keys():
-        #Making the connecting token between words a normal letter 'w' because BERT's tokenizer
-        #splits on special tokens like '%' and '$'
-        emoji_token = 'x'.join(re.split('\W+', emoji_dict[emoji])) + ' '
-        text_string = text_string.replace(emoji, emoji_token)
-        
-        #Controlling for multiple emojis in a row
-        pattern = '(' + emoji_token + ')' + '{2,}'
-        text_string = re.sub(pattern, 'mult' + emoji_token + ' ', text_string)
+    for word in text_string:
+        if word in emoji.UNICODE_EMOJI:
+            emoji_token = re.sub("[_-]", " ", emoji.demojize(word, delimiters = (" ", " ")))
+            emoji_token = 'x'.join(re.split('\W+', emoji_token[1:])) + ' '
+            text_string = text_string.replace(word, emoji_token)
+            
+            pattern = '(' + emoji_token + ')' + '{2,}'
+            text_string = re.sub(pattern, 'mult' + emoji_token + ' ', text_string)
     return text_string
 
 
@@ -146,3 +201,6 @@ def remove_stopwords(text):
     word_list = re.split('\W+', text)
     text = " ".join([word for word in word_list if word not in stopwords])
     return text
+
+
+
