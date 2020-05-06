@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Hate Speech is a scourge upon the internet, especially on twitter. This project aims to develop a classifier which can reliably classify hate speech tweets. This hate speech detector has been benchmarked against other systems and has achieved admirable reslts. Placing in the top 10 in the ongoing AnalyticsVidhya Twitter sentiment problem - a hackathon which has thousands of participants - and also placing third on classifying the HatEval dataset among 69 participant systems. First among those using a neural network approach.
+Hate Speech is a scourge upon the internet, especially on twitter. This project aims to develop a classifier which can reliably classify hate speech tweets. This hate speech detector has been benchmarked against other systems and has achieved admirable reslts. Placing in the top 10 in the ongoing AnalyticsVidhya Twitter sentiment problem (a hackathon which has thousands of participants) achieving an F score of 0.8267. Also, placing third on classifying the HatEval dataset among 69 participant systems, with a macro F1 score of 0.547. First among those using a neural network approach.
 
 This project is organised for convenience in folders, each with their own descriptive README file. The process of building this system can be split into 3 phases
 
@@ -18,6 +18,3 @@ The **Report** directory where an interim project description and final report a
 
 Finally the **Meeting_Minutes** directory is a summarisation of regular meetings between the project supervisor and myself. In it are suggestions from the supervisor on how to improve the classifier and what aspects of BERT I should explore and exploit in order to gain performance.
 
-
-
-The result of this project was a competitive hate speech classifier that performs well on the couple of hate speech sets it was benchmarked on. It has a macro F1 score of 0.547 on the HatEval 2019 set for the english hate speech classification subtask - A, which is placed third among current attempts, first among neural network based models. It is currently in the top 10 of the analyticsvidhya.com dataset as of writing, achieving an F score of 0.8267 on the evaluation of that competition's test set.
